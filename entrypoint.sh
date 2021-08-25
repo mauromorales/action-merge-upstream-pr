@@ -3,6 +3,12 @@
 set -e
 set -x
 
+if [ $INPUT_DESTINATION_HEAD_BRANCH == "main" ] || [ $INPUT_DESTINATION_HEAD_BRANCH == "master"]
+then
+  echo "Destination head branch cannot be 'main' nor 'master'"
+  return -1
+fi
+
 if [ -z "$INPUT_PULL_REQUEST_REVIEWERS" ]
 then
   PULL_REQUEST_REVIEWERS=$INPUT_PULL_REQUEST_REVIEWERS
@@ -22,7 +28,7 @@ git clone "https://$API_TOKEN_GITHUB@github.com/$INPUT_DESTINATION_REPO.git" "$C
 
 cd "$CLONE_DIR"
 git remote add upstream "https://$API_TOKEN_GITHUB@github.com/$GITHUB_REPOSITORY.git"
-git checkout "$INPUT_DESTINATION_HEAD_BRANCH"
+git checkout -b "$INPUT_DESTINATION_HEAD_BRANCH-$GITHUB_SHA"
 
 echo "Fetching upstream"
 git fetch upstream
@@ -32,3 +38,6 @@ git merge upstream/master --log -m 'Merge upstream/master'
 
 echo "Pushing git commit"
 git push -u origin HEAD:$INPUT_DESTINATION_HEAD_BRANCH
+echo "Creating a pull request"
+gh pr create -f -R $INPUT_DESTINATION_REPO \
+                $PULL_REQUEST_REVIEWERS
