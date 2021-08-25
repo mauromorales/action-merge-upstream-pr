@@ -39,8 +39,5 @@ git merge upstream/master --log -m 'Merge upstream/master'
 echo "Pushing git commit"
 git push -u origin HEAD:$INPUT_DESTINATION_HEAD_BRANCH
 echo "Creating a pull request"
-gh pr create -t $INPUT_DESTINATION_HEAD_BRANCH \
-              -b $INPUT_DESTINATION_HEAD_BRANCH \
-              -B $INPUT_DESTINATION_BASE_BRANCH \
-              -H $INPUT_DESTINATION_HEAD_BRANCH \
+gh pr create -f -R $INPUT_DESTINATION_REPO \
                 $PULL_REQUEST_REVIEWERS
