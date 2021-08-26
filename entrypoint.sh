@@ -18,7 +18,7 @@ fi
 
 CLONE_DIR=$(mktemp -d)
 
-echo "Setting git variables"
+echo "Setting git variables for commit user"
 export GITHUB_TOKEN=$API_TOKEN_GITHUB
 git config --global user.email "$INPUT_USER_EMAIL"
 git config --global user.name "$INPUT_USER_NAME"
@@ -27,10 +27,10 @@ echo "Cloning destination git repository"
 git clone "https://$API_TOKEN_GITHUB@github.com/$INPUT_DESTINATION_REPO.git" "$CLONE_DIR"
 
 cd "$CLONE_DIR"
-git remote add upstream "https://$API_TOKEN_GITHUB@github.com/$GITHUB_REPOSITORY.git"
-git checkout -b "$INPUT_DESTINATION_HEAD_BRANCH-$GITHUB_SHA"
+git checkout "$INPUT_DESTINATION_HEAD_BRANCH"
 
 echo "Fetching upstream"
+git remote add upstream "https://$API_TOKEN_GITHUB@github.com/$GITHUB_REPOSITORY.git"
 git fetch upstream
 
 echo "Merging"
@@ -38,6 +38,3 @@ git merge upstream/master --log -m 'Merge upstream/master'
 
 echo "Pushing git commit"
 git push -u origin HEAD:$INPUT_DESTINATION_HEAD_BRANCH
-echo "Creating a pull request"
-gh pr create -f -R $INPUT_DESTINATION_REPO \
-                $PULL_REQUEST_REVIEWERS
